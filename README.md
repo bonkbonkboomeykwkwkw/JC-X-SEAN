@@ -47,7 +47,24 @@ API defaults to http://localhost:5000. Set `PORT` in `.env` to change it; the Vi
 | DELETE | `/api/products/:id` | Delete a product |
 | POST | `/api/orders` | Store a demo order |
 
-Product payload: `name`, `description`, `price` (number), `category` (Living/Lighting/Kitchen/Objects), `image` (HTTP(S) URL), optional `badge`.
+Product payload: `name`, `description`, `price` (number), `category` (Furniture/Sports/Living/Lighting/Kitchen/Objects), `image` (HTTP(S) URL), optional `badge`.
 Order payload: `customer: { name, email, address }`, `items: [{ product: "MongoDB product ID", quantity: 1 }]`. The server calculates prices and shipping from the database. Submitted client totals are ignored.
 
 This remains a demo: management endpoints have no authentication, and checkout does not collect payment. Add authentication and authorization before exposing product management publicly. Orders contain customer details, so no public order-list endpoint is included. The old localStorage product catalog is not migrated automatically. Photos and fonts require an internet connection.
+
+## Category pages
+
+Each category has its own shareable URL and filtered catalog:
+
+- `/category/furniture`
+- `/category/sports`
+- `/category/living`
+- `/category/lighting`
+- `/category/kitchen`
+- `/category/objects`
+
+Use the header or collection category links to navigate. Direct links and refreshes work in Vite development and the built Express app. Search and sorting apply within the current category; your bag carries across pages. Each category shares the same product CRUD tools, with its category preselected when adding a product.
+
+Choose Sports or Furniture in **Manage store** to add items to those pages or move existing products there. Existing MongoDB products keep their categories; no database reset or reseed is necessary. Empty categories show a helpful message until products are added. Category definitions live in `shared/categories.js` and are used by both the frontend and database validation.
+
+`npm test` builds the frontend before running API and category-page integration tests.

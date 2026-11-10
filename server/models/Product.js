@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-export const categories = ['Living', 'Lighting', 'Kitchen', 'Objects'];
+import { categories } from '../../shared/categories.js';
+export { categories };
 const schema = new mongoose.Schema({
   name: { type: String, required: true, trim: true, maxlength: 80 },
   description: { type: String, required: true, trim: true, maxlength: 100 },

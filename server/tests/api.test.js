@@ -41,3 +41,21 @@ test('product CRUD persists and validates input; orders use database prices', as
   assert.equal((await request(`/products/${id}`)).status, 404);
   assert.equal((await request('/orders', 'POST', { customer, items: [{ product: id, quantity: 1 }] })).status, 409);
 });
+
+test('category URLs support direct loading and product CRUD accepts new categories', async () => {
+  const { categoryPages } = await import('../../shared/categories.js');
+  for (const page of categoryPages) {
+    const response = await fetch(base.replace('/api', '') + `/category/${page.slug}`);
+    assert.equal(response.status, 200, page.slug);
+    assert.match(await response.text(), /<div id="root"><\/div>/);
+  }
+  assert.equal((await fetch(base.replace('/api', '') + '/category/unknown')).status, 404);
+  for (const category of ['Sports', 'Furniture']) {
+    const created = await request('/products', 'POST', { ...product, category });
+    assert.equal(created.status, 201);
+    assert.equal((await request(`/products/${created.body._id}`)).body.category, category);
+    assert.equal((await request(`/products/${created.body._id}`, 'PUT', { category: 'Kitchen' })).body.category, 'Kitchen');
+    await request(`/products/${created.body._id}`, 'DELETE');
+  }
+  assert.equal((await request('/products', 'POST', { ...product, category: 'Unknown' })).status, 400);
+});

@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Product from './models/Product.js';
 import Order from './models/Order.js';
+import { categoryPages } from '../shared/categories.js';
 export const app = express();
 app.disable('x-powered-by');
 app.use(express.json({ limit: '100kb' }));
@@ -48,7 +49,7 @@ app.post('/api/orders', async (req, res) => {
 app.use('/api', (_req, res) => res.status(404).json({ message: 'API route not found' }));
 const dist = fileURLToPath(new URL('../client/dist/', import.meta.url));
 app.use(express.static(dist));
-app.get('/', (_req, res) => res.sendFile(path.join(dist, 'index.html')));
+app.get(['/', ...categoryPages.map(page => `/category/${page.slug}`)], (_req, res) => res.sendFile(path.join(dist, 'index.html')));
 app.use((error, _req, res, _next) => {
   const status = error.status || (['ValidationError', 'CastError'].includes(error.name) ? 400 : 500);
   res.status(status).json({ message: status < 500 ? error.message : 'An unexpected server error occurred' });

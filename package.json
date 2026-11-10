@@ -10,9 +10,21 @@
     "build": "vite build --config client/vite.config.js",
     "start": "node server.js",
     "seed": "node server/seed.js",
-    "test": "node --test server/tests/*.test.js"
+    "test": "node --test server/tests/*.test.js",
+    "pretest": "npm run build"
   },
-  "engines": { "node": ">=20.19" },
-  "dependencies": { "dotenv": "^16.6.1", "express": "^5.1.0", "mongoose": "^8.19.0", "react": "^19.1.1", "react-dom": "^19.1.1" },
-  "devDependencies": { "vite": "^7.1.0", "mongodb-memory-server": "^10.2.0" }
+  "engines": {
+    "node": ">=20.19"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.19.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "vite": "^7.1.0",
+    "mongodb-memory-server": "^10.2.0"
+  }
 }
