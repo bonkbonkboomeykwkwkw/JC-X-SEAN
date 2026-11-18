@@ -1,4 +1,6 @@
 export const initialProducts = [
+{name:'Everyday Oak Bench',description:'Solid oak · Natural finish',price:220,category:'Furniture',badge:'',image:'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=700&q=85'},
+{name:'Trail Daypack',description:'Weather-ready · Forest green',price:78,category:'Sports',badge:'New arrival',image:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=700&q=85'},
 {name:'Arc Lounge Chair',description:'Solid oak · Natural linen',price:245,category:'Living',badge:'Bestseller',image:'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=700&q=85'},
 {name:'Dune Ceramic Vase',description:'Hand-finished · Sand',price:38,category:'Objects',badge:'',image:'https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&w=700&q=85'},
 {name:'Halo Table Light',description:'Warm glow · Soft white',price:89,category:'Lighting',badge:'New arrival',image:'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=700&q=85'},

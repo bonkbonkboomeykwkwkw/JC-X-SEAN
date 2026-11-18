@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev.js",
-    "dev:client": "vite --config client/vite.config.js",
+    "server": "node --watch server.js",
+    "client": "node node_modules/vite/bin/vite.js --config client/vite.config.js",
+    "dev:client": "node node_modules/vite/bin/vite.js --config client/vite.config.js",
     "dev:server": "node --watch server.js",
-    "build": "vite build --config client/vite.config.js",
+    "build": "node node_modules/vite/bin/vite.js build --config client/vite.config.js",
     "start": "node server.js",
     "seed": "node server/seed.js",
     "test": "node --test server/tests/*.test.js",
