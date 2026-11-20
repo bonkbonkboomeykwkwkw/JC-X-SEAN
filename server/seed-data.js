@@ -1,12 +1,10 @@
 export const initialProducts = [
-{name:'Everyday Oak Bench',description:'Solid oak · Natural finish',price:220,category:'Furniture',badge:'',image:'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=700&q=85'},
-{name:'Trail Daypack',description:'Weather-ready · Forest green',price:78,category:'Sports',badge:'New arrival',image:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=700&q=85'},
-{name:'Arc Lounge Chair',description:'Solid oak · Natural linen',price:245,category:'Living',badge:'Bestseller',image:'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=700&q=85'},
-{name:'Dune Ceramic Vase',description:'Hand-finished · Sand',price:38,category:'Objects',badge:'',image:'https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&w=700&q=85'},
-{name:'Halo Table Light',description:'Warm glow · Soft white',price:89,category:'Lighting',badge:'New arrival',image:'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=700&q=85'},
-{name:'Everyday Pour-Over',description:'Stoneware · Oat',price:32,category:'Kitchen',badge:'',image:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=700&q=85'},
-{name:'Woven Sunday Throw',description:'Cotton blend · Warm ivory',price:65,category:'Living',badge:'A little comfort',image:'https://images.unsplash.com/photo-1600369671236-e74521d4b6ad?auto=format&fit=crop&w=700&q=85'},
-{name:'Still Life Bowl',description:'Natural wood · Hand-carved',price:46,category:'Kitchen',badge:'',image:'https://images.unsplash.com/photo-1490312278390-ab64016e0aa9?auto=format&fit=crop&w=700&q=85'},
-{name:'Form Accent Chair',description:'Sculpted wood · Warm walnut',price:195,category:'Living',badge:'',image:'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=700&q=85'},
-{name:'Quiet Moments',description:'Botanical candle · Cedar & sage',price:28,category:'Objects',badge:'Small rituals',image:'https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=700&q=85'}
+{name:'Nova Phone Pro',description:'6.7-inch display · 256GB',price:999,category:'Phones',badge:'New',image:'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&w=900&q=85'},
+{name:'Nova Phone Air',description:'6.1-inch display · 128GB',price:699,category:'Phones',badge:'',image:'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=85'},
+{name:'StudioBook 14',description:'14-inch display · 16GB memory',price:1199,category:'Computers',badge:'Bestseller',image:'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=85'},
+{name:'Tab One',description:'11-inch display · Wi-Fi',price:449,category:'Computers',badge:'',image:'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=900&q=85'},
+{name:'Pulse Buds',description:'Active noise cancellation',price:179,category:'Audio',badge:'New',image:'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?auto=format&fit=crop&w=900&q=85'},
+{name:'Orbit Speaker',description:'Room-filling sound · Midnight',price:129,category:'Audio',badge:'',image:'https://images.unsplash.com/photo-1589003077984-894e133dabab?auto=format&fit=crop&w=900&q=85'},
+{name:'Active Watch',description:'GPS · Heart-rate tracking',price:299,category:'Wearables',badge:'',image:'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=85'},
+{name:'Charge Kit',description:'100W power adapter · USB-C cable',price:49,category:'Accessories',badge:'Essential',image:'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=900&q=85'}
 ];

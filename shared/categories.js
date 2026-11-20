@@ -1,10 +1,11 @@
 export const categoryPages = [
-  { name: 'Furniture', slug: 'furniture', description: 'Thoughtful furniture for the places you gather, rest, and make your own.' },
-  { name: 'Sports', slug: 'sports', description: 'Everyday essentials for movement, training, and time outdoors.' },
-  { name: 'Living', slug: 'living', description: 'Practical essentials and accessories for your daily routines.' },
-  { name: 'Lighting', slug: 'lighting', description: 'A softer glow for quiet evenings, focused work, and everything between.' },
-  { name: 'Kitchen', slug: 'kitchen', description: 'Beautifully useful pieces for cooking, sharing, and daily rituals.' },
-  { name: 'Objects', slug: 'objects', description: 'Explore useful accessories, gifts, and everyday finds.' },
+  { name: 'Phones', slug: 'phones', description: 'Smartphones and everyday phone essentials, all in one place.' },
+  { name: 'Computers', slug: 'computers', description: 'Laptops, tablets, and work-from-anywhere essentials.' },
+  { name: 'Audio', slug: 'audio', description: 'Headphones, speakers, and sound made for every moment.' },
+  { name: 'Wearables', slug: 'wearables', description: 'Watches and wearable technology that keeps you connected.' },
+  { name: 'Gaming', slug: 'gaming', description: 'Gaming gear for play, competition, and everything in between.' },
+  { name: 'Smart Home', slug: 'smart-home', description: 'Connected devices that make home life easier.' },
+  { name: 'Accessories', slug: 'accessories', description: 'Chargers, cases, cables, and finishing touches for your setup.' },
 ];
 export const categories = categoryPages.map(page => page.name);
 export const categoryPath = name => `/category/${categoryPages.find(page => page.name === name)?.slug || ''}`;
