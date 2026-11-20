@@ -43,7 +43,7 @@ function AuthPages({ type }) {
   </label>;
 
   return <div className={`auth-page ${isAdmin ? 'admin-auth' : ''}`}>
-    <div className="auth-announce">{isAdmin ? 'SEAN AND JC.CO · STAFF ACCESS' : 'Find what fits your everyday.'}<span>{isAdmin ? 'Private area' : 'Free shipping on orders over $100'}</span></div>
+    <div className="auth-announce">{isAdmin ? 'SEAN AND JC.CO · STAFF ACCESS' : 'Find what fits your everyday.'}<span>{isAdmin ? 'Private area' : 'Free shipping on orders over ₱100'}</span></div>
     <header className="auth-header">
       <a className="brand" href="/">Sean&JC.co</a>
       <nav aria-label="Account navigation">

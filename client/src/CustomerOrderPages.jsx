@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ShoppingBagIcon from './ShoppingBagIcon';
 import './customer-order-pages.css';
 
-const money = value => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+const money = value => new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(value);
 const statuses = ['All', 'Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
 const progress = ['Pending', 'Processing', 'Shipped', 'Delivered'];
 
