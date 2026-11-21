@@ -56,10 +56,15 @@ The gadget catalog updates instantly for the browser that makes a change, and ot
 | DELETE | `/api/products/:id` | Delete a product (admin bearer token required) |
 | GET | `/api/orders` | List the authenticated customer's orders; admins see all |
 | POST | `/api/orders` | Store an order (customer bearer token required) |
+| PATCH | `/api/orders/:id/status` | Change an order status (admin bearer token required) |
+| PATCH | `/api/orders/:id/payment` | Update COD payment status (admin bearer token required) |
+| GET | `/api/orders/:id/history` | Read chronological status history (owner or admin) |
 
 Product payload: `name`, `description`, `price` (number), `category` (Phones/Computers/Audio/Wearables/Gaming/Smart Home/Accessories), `image` (HTTP(S) URL), optional `badge`.
 Register payload: `{ name, email, password }`. Customer login payload: `{ email, password }`. Admin login payload: `{ identity, password }`, where identity is the admin email or optional username. Successful authentication returns `{ token, user: { id, name, email, role } }`; use `Authorization: Bearer <token>` for protected endpoints. Tokens expire after one hour.
-Order payload: `customer: { name, email, address }`, `items: [{ product: "MongoDB product ID", quantity: 1 }]`. Orders are associated with the authenticated customer. The server calculates prices and shipping from the database. Submitted client totals are ignored. Legacy orders without a user association are only visible to admins.
+Order payload: `customer: { name, email, address }`, `items: [{ product: "MongoDB product ID", quantity: 1 }]`, and optional `contactNumber`; `shippingAddress` may also be supplied and otherwise uses `customer.address`. New orders start `Pending` with COD payment `Pending`. The server calculates prices and shipping from the database. Submitted client totals are ignored. Legacy orders without a user association are only visible to admins.
+
+Admins update status with `{ status, note? }`. Allowed transitions are Pending → Processing/Cancelled, Processing → Shipped/Cancelled, and Shipped → Delivered; Delivered and Cancelled are terminal. Every new order and status transition records a history entry. Admins mark COD payment paid with `{ paymentStatus: "Paid" }` only after delivery, or cancelled with `{ paymentStatus: "Cancelled" }` only for a cancelled order; delivery does not automatically mark payment as paid. Legacy orders without history return an empty history, and legacy statuses are not migrated or reset.
 
 The authentication API is available, but the current React authentication forms still display “not connected” feedback and do not call it. The product-management UI does not yet attach bearer tokens; checkout and My Orders must also attach the customer token to use protected order endpoints. Finish those frontend integrations before using the protected flows through the UI. Checkout does not collect payment. The old localStorage product catalog is not migrated automatically. Photos and fonts require an internet connection.
 

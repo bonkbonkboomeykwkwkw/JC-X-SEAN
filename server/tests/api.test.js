@@ -162,18 +162,23 @@ test('product CRUD and orders require the correct role and orders are owner-scop
   assert.equal(otherCustomerOrders.body.length, 1);
   assert.equal(otherCustomerOrders.body[0]._id, secondOrder.body.id);
 
-  const legacyOrder = await Order.create({
+  const legacyOrderId = new mongoose.Types.ObjectId();
+  await Order.collection.insertOne({
+    _id: legacyOrderId,
+    status: 'demo',
     customer: { name: 'Legacy', email: 'legacy@example.com', address: 'Legacy address' },
     items: [],
     subtotal: 0,
     shipping: 0,
     total: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
   assert.equal((await request('/orders', 'GET', undefined, customerToken)).body.length, 1);
   const adminOrders = await request('/orders', 'GET', undefined, adminToken);
   assert.equal(adminOrders.status, 200);
   assert.equal(adminOrders.body.length, 3);
-  assert.ok(adminOrders.body.some(order => order._id === String(legacyOrder._id)));
+  assert.ok(adminOrders.body.some(order => order._id === String(legacyOrderId)));
 
   const freeShipping = await request('/orders', 'POST', { customer: orderCustomer, items: [{ product: id, quantity: 3 }] }, customerToken);
   assert.equal(freeShipping.body.total, 120);
@@ -201,4 +206,108 @@ test('category URLs support direct loading and admin product CRUD accepts new ca
   assert.equal((await request('/products', 'POST', { ...product, category: 'Unknown' }, adminToken)).status, 400);
   const { initialProducts } = await import('../seed-data.js');
   assert.deepEqual(new Set(initialProducts.map(item => item.category)), new Set(['Phones', 'Computers', 'Audio', 'Wearables', 'Accessories']));
+});
+
+test('order lifecycle records status history, restricts access, and tracks COD payment', async () => {
+  const createdProduct = await request('/products', 'POST', { ...product, name: 'Lifecycle gadget' }, adminToken);
+  assert.equal(createdProduct.status, 201);
+
+  assert.equal((await request('/orders', 'POST', {
+    customer: orderCustomer,
+    items: [{ product: createdProduct.body._id, quantity: 1 }],
+    contactNumber: '123-456',
+  }, customerToken)).status, 400);
+  assert.equal((await request('/orders', 'POST', {
+    customer: orderCustomer,
+    items: [{ product: createdProduct.body._id, quantity: 1 }],
+    paymentMethod: 'GCash',
+  }, customerToken)).status, 400);
+
+  const createdOrder = await request('/orders', 'POST', {
+    customer: orderCustomer,
+    items: [{ product: createdProduct.body._id, quantity: 1 }],
+    contactNumber: '+63 917 123 4567',
+  }, customerToken);
+  assert.equal(createdOrder.status, 201);
+  const orderId = createdOrder.body.id;
+  const storedOrder = await Order.findById(orderId).lean();
+  assert.equal(storedOrder.status, 'Pending');
+  assert.equal(storedOrder.paymentMethod, 'COD');
+  assert.equal(storedOrder.paymentStatus, 'Pending');
+  assert.equal(storedOrder.contactNumber, '+63 917 123 4567');
+  assert.equal(storedOrder.shippingAddress, orderCustomer.address);
+
+  let history = await request(`/orders/${orderId}/history`, 'GET', undefined, customerToken);
+  assert.equal(history.status, 200);
+  assert.equal(history.body.length, 1);
+  assert.equal(history.body[0].previousStatus, null);
+  assert.equal(history.body[0].newStatus, 'Pending');
+  assert.equal(history.body[0].changedBy, customerId);
+
+  assert.equal((await request(`/orders/${orderId}/status`, 'PATCH', { status: 'Processing' }, customerToken)).status, 403);
+  assert.equal((await request(`/orders/${orderId}/payment`, 'PATCH', { paymentStatus: 'Paid' }, customerToken)).status, 403);
+  assert.equal((await request(`/orders/${orderId}/history`, 'GET', undefined, otherCustomerToken)).status, 404);
+  assert.equal((await request(`/orders/${orderId}/payment`, 'PATCH', { paymentStatus: 'Paid' }, adminToken)).status, 409);
+  assert.equal((await request(`/orders/${orderId}/status`, 'PATCH', { status: 'Shipped' }, adminToken)).status, 409);
+  assert.equal((await request(`/orders/${orderId}/status`, 'PATCH', { status: 'Unknown' }, adminToken)).status, 400);
+
+  const processing = await request(`/orders/${orderId}/status`, 'PATCH', { status: 'Processing', note: 'Order confirmed' }, adminToken);
+  assert.equal(processing.status, 200);
+  assert.equal(processing.body.status, 'Processing');
+  assert.equal((await request(`/orders/${orderId}/status`, 'PATCH', { status: 'Pending' }, adminToken)).status, 409);
+  assert.equal((await request(`/orders/${orderId}/status`, 'PATCH', { status: 'Shipped' }, adminToken)).status, 200);
+  assert.equal((await request(`/orders/${orderId}/status`, 'PATCH', { status: 'Delivered' }, adminToken)).status, 200);
+
+  const deliveredOrder = await Order.findById(orderId).lean();
+  assert.equal(deliveredOrder.status, 'Delivered');
+  assert.equal(deliveredOrder.paymentStatus, 'Pending');
+  const paid = await request(`/orders/${orderId}/payment`, 'PATCH', { paymentStatus: 'Paid' }, adminToken);
+  assert.equal(paid.status, 200);
+  assert.equal(paid.body.paymentStatus, 'Paid');
+  assert.equal((await request(`/orders/${orderId}/status`, 'PATCH', { status: 'Cancelled' }, adminToken)).status, 409);
+
+  history = await request(`/orders/${orderId}/history`, 'GET', undefined, adminToken);
+  assert.equal(history.status, 200);
+  assert.deepEqual(history.body.map(entry => [entry.previousStatus, entry.newStatus]), [
+    [null, 'Pending'],
+    ['Pending', 'Processing'],
+    ['Processing', 'Shipped'],
+    ['Shipped', 'Delivered'],
+  ]);
+  assert.equal(history.body[1].changedBy, (await User.findOne({ role: 'admin' })).id);
+  assert.equal(history.body[1].note, 'Order confirmed');
+
+  const cancelledOrder = await request('/orders', 'POST', {
+    customer: orderCustomer,
+    items: [{ product: createdProduct.body._id, quantity: 1 }],
+  }, customerToken);
+  assert.equal(cancelledOrder.status, 201);
+  assert.equal((await request(`/orders/${cancelledOrder.body.id}/status`, 'PATCH', { status: 'Cancelled' }, adminToken)).status, 200);
+  const cancelledPayment = await request(`/orders/${cancelledOrder.body.id}/payment`, 'PATCH', { paymentStatus: 'Paid' }, adminToken);
+  assert.equal(cancelledPayment.status, 409);
+  assert.match(cancelledPayment.body.message, /Cancelled orders/);
+  assert.equal((await request(`/orders/${cancelledOrder.body.id}/payment`, 'PATCH', { paymentStatus: 'Cancelled' }, adminToken)).status, 200);
+  assert.equal((await Order.findById(cancelledOrder.body.id).lean()).paymentStatus, 'Cancelled');
+
+  const legacyId = new mongoose.Types.ObjectId();
+  await Order.collection.insertOne({
+    _id: legacyId,
+    user: new mongoose.Types.ObjectId(customerId),
+    customer: orderCustomer,
+    items: [],
+    subtotal: 0,
+    shipping: 0,
+    total: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  });
+  const legacyHistory = await request(`/orders/${legacyId}/history`, 'GET', undefined, customerToken);
+  assert.equal(legacyHistory.status, 200);
+  assert.deepEqual(legacyHistory.body, []);
+  assert.equal((await request(`/orders/${legacyId}/status`, 'PATCH', { status: 'Processing' }, adminToken)).status, 409);
+  const unchangedLegacy = await Order.collection.findOne({ _id: legacyId });
+  assert.equal(Object.hasOwn(unchangedLegacy, 'status'), false);
+
+  assert.equal((await request(`/orders/${new mongoose.Types.ObjectId()}/history`, 'GET', undefined, adminToken)).status, 404);
+  assert.equal((await request('/orders/not-an-id/history', 'GET', undefined, adminToken)).status, 400);
 });
