@@ -9,6 +9,7 @@ import { JWT_AUDIENCE, JWT_ISSUER } from '../middleware/auth.js';
 import Order from '../models/Order.js';
 import Product from '../models/Product.js';
 import User from '../models/User.js';
+import { seedCatalog } from '../seedCatalog.js';
 
 const jwtSecret = 'test-secret-with-more-than-thirty-two-bytes';
 process.env.JWT_SECRET = jwtSecret;
@@ -205,7 +206,13 @@ test('category URLs support direct loading and admin product CRUD accepts new ca
   }
   assert.equal((await request('/products', 'POST', { ...product, category: 'Unknown' }, adminToken)).status, 400);
   const { initialProducts } = await import('../seed-data.js');
-  assert.deepEqual(new Set(initialProducts.map(item => item.category)), new Set(['Phones', 'Computers', 'Audio', 'Wearables', 'Accessories']));
+  const { categories } = await import('../../shared/categories.js');
+  assert.deepEqual(new Set(initialProducts.map(item => item.category)), new Set(categories));
+  assert.equal(new Set(initialProducts.map(item => item.name)).size, initialProducts.length);
+  for (const item of initialProducts) {
+    assert.ok(item.name && item.description && item.price > 0 && categories.includes(item.category));
+    assert.equal(new URL(item.image).protocol, 'https:');
+  }
 });
 
 test('order lifecycle records status history, restricts access, and tracks COD payment', async () => {
@@ -310,4 +317,26 @@ test('order lifecycle records status history, restricts access, and tracks COD p
 
   assert.equal((await request(`/orders/${new mongoose.Types.ObjectId()}/history`, 'GET', undefined, adminToken)).status, 404);
   assert.equal((await request('/orders/not-an-id/history', 'GET', undefined, adminToken)).status, 400);
+});
+
+test('catalog seeding replaces only named starter products and populates every category', async () => {
+  const starter = await Product.create({ ...product, name: 'Nova Phone Pro' });
+  const custom = await Product.create({ ...product, name: 'Customer-created gadget' });
+  const existingOrder = await Order.findOne();
+  const usersBefore = await User.countDocuments();
+
+  const seeded = await seedCatalog();
+
+  assert.equal(seeded.seededCount, 14);
+  assert.equal(seeded.removedCount, 1);
+  assert.equal(await Product.findById(starter._id), null);
+  assert.ok(await Product.findById(custom._id));
+  assert.ok(await Order.findById(existingOrder._id));
+  assert.equal(await User.countDocuments(), usersBefore);
+
+  const { initialProducts } = await import('../seed-data.js');
+  const seededNames = initialProducts.map(item => item.name);
+  assert.equal(await Product.countDocuments({ name: { $in: seededNames } }), initialProducts.length);
+  assert.equal((await request('/products?category=Gaming')).body.length, 2);
+  assert.equal((await request('/products?category=Smart%20Home')).body.length, 2);
 });

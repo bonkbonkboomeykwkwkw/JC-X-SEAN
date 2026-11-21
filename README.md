@@ -11,7 +11,7 @@ Requires Node.js 20.19+ (or Node.js 22.12+) and a MongoDB Atlas cluster.
 3. In Atlas, create a database deployment, create a **database user**, and add your current IP address under **Network Access**. Then select **Connect → Drivers** and copy the provided `mongodb+srv://` URI. Atlas database users are separate from Atlas account users, and Atlas requires both a database user and an IP access-list entry. [MongoDB Atlas connection guide](https://www.mongodb.com/docs/atlas/driver-connection/)
 4. Replace the placeholder `MONGODB_URI` in `.env` with that URI. Use `sean-jc-store` as the database name after `.net/`; do not commit `.env` or share the URI.
 5. Add `JWT_SECRET` to `.env` without replacing other settings. Generate a random secret of at least 32 bytes with Node.js by running `node -e "console.log(require('node:crypto').randomBytes(48).toString('base64url'))"` and paste the output as the value. Do not commit or share the generated value. The API refuses to start if the secret is missing or shorter than 32 bytes.
-6. Run `npm run seed` to insert the eight gadget products. Seeding skips an existing collection without deleting products.
+6. Run `npm run seed` to upsert the 14 technology catalog products. The seed removes only the eight known replaced starter products by exact name; it does not wipe collections or delete users or orders.
 7. To initialize the first administrator, set `INITIAL_ADMIN_NAME`, `INITIAL_ADMIN_EMAIL`, `INITIAL_ADMIN_PASSWORD` (at least 12 bytes), and optionally `INITIAL_ADMIN_USERNAME` in `.env`; run `npm run create-admin`, then remove those values. This command refuses to create another admin once one exists. Admins cannot be created through public registration.
 8. Run `npm run dev` to launch React and the API together.
 9. Open http://localhost:5173 (or the URL Vite prints if that port is occupied).
@@ -25,7 +25,7 @@ The gadget catalog updates instantly for the browser that makes a change, and ot
 - `npm run dev`: React and API with change watching
 - `npm run dev:client`: React only
 - `npm run dev:server`: API only
-- `npm run seed`: insert starter products into an empty database
+- `npm run seed`: upsert the technology catalog and remove only the retired starter products
 - `npm run create-admin`: create the initial administrator from one-time environment values
 - `npm run build`: compile React into `client/dist`
 - `npm start`: serve the API and built frontend on port 5000

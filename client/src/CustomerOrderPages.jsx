@@ -31,7 +31,7 @@ function Summary({ orderItems, subtotal, shipping, total }) {
   </aside>;
 }
 
-export function CheckoutPage({ items, subtotal, onPlaceOrder, onBack, onContinueShopping }) {
+export function CheckoutPage({ items, subtotal, onPlaceOrder, onBack, onViewOrders, onContinueShopping }) {
   const [paymentMethod, setPaymentMethod] = useState('Cash on Delivery');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -57,7 +57,6 @@ export function CheckoutPage({ items, subtotal, onPlaceOrder, onBack, onContinue
       .join(', ');
     return {
       customer: { name: values.name.trim(), email: values.email.trim(), address },
-      paymentMethod,
     };
   }
 
@@ -65,7 +64,7 @@ export function CheckoutPage({ items, subtotal, onPlaceOrder, onBack, onContinue
     event.preventDefault();
     const form = event.currentTarget;
     if (submissionLock.current || !form.reportValidity()) return;
-    const { customer, paymentMethod: selectedPaymentMethod } = readForm(form);
+    const { customer } = readForm(form);
     if (!customer.address || customer.address.length > 500) {
       setError('Enter a delivery address the order API can accept (up to 500 characters).');
       return;
@@ -75,7 +74,7 @@ export function CheckoutPage({ items, subtotal, onPlaceOrder, onBack, onContinue
     setSubmitting(true);
     try {
       const order = await onPlaceOrder({ customer });
-      setConfirmation({ order, customer, paymentMethod: selectedPaymentMethod });
+      setConfirmation({ order });
     } catch (requestError) {
       setError(requestError.message || 'The order could not be saved. Your cart has been kept.');
     } finally {
@@ -84,19 +83,27 @@ export function CheckoutPage({ items, subtotal, onPlaceOrder, onBack, onContinue
     }
   }
 
-  if (confirmation) return <section className="customer-page checkout-page" aria-labelledby="checkout-confirmation-title">
-    <button className="customer-back" onClick={onBack}>← Back to the shop</button>
-    <div className="order-confirmation" role="status">Your order was saved by the server. No payment was processed.</div>
-    <div className="order-empty">
-      <h1 id="checkout-confirmation-title">Order confirmed</h1>
-      <p><strong>Order ID:</strong> {confirmation.order.id}</p>
-      <p><strong>Status:</strong> {confirmation.order.status}</p>
-      <p><strong>Total:</strong> {money(confirmation.order.total)}</p>
-      <p><strong>Customer:</strong> {confirmation.customer.name} · {confirmation.customer.email}</p>
-      <p><strong>Delivery address:</strong> {confirmation.customer.address}</p>
-      <p><strong>Selected payment:</strong> {confirmation.paymentMethod} (not saved by the current API)</p>
-      <p>Contact number and delivery instructions were not saved. The backend currently stores only the name, email, one address field, and items.</p>
-      <button className="dark-button" onClick={onContinueShopping}>Continue shopping <span>↗</span></button>
+  if (confirmation) return <section className="customer-page checkout-page checkout-confirmation-page" aria-labelledby="checkout-confirmation-title">
+    <div className="checkout-success-card">
+      <div className="checkout-success-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="m6.5 12.5 3.5 3.5 7.5-8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+      </div>
+      <div className="eyebrow">ORDER CONFIRMED</div>
+      <h1 id="checkout-confirmation-title">Order Placed Successfully!</h1>
+      <p className="checkout-success-message">Thanks for shopping with Sean &amp; JC.co. We’ve received your order and will begin processing it shortly.</p>
+      <div className="checkout-order-reference">
+        <span>ORDER REFERENCE</span>
+        <strong>{confirmation.order.id}</strong>
+      </div>
+      <div className="checkout-confirmation-summary">
+        <div><span>Current status</span><strong>{confirmation.order.status}</strong></div>
+        <div><span>Order total</span><strong>{money(confirmation.order.total)}</strong></div>
+      </div>
+      <div className="checkout-confirmation-actions">
+        <button className="dark-button" type="button" onClick={onViewOrders}>View My Orders <span>↗</span></button>
+        <button className="checkout-secondary-button" type="button" onClick={onContinueShopping}>Continue Shopping</button>
+      </div>
+      <p className="checkout-success-footnote">Your order details are saved to your account. No payment was processed online.</p>
     </div>
   </section>;
 
