@@ -11,10 +11,11 @@ export async function createOrder(req, res) {
   const orderItems = items.map(item => { const p = products.find(p => String(p._id) === item.product); return { product: p._id, name: p.name, price: p.price, quantity: item.quantity }; });
   const cents = orderItems.reduce((sum, item) => sum + Math.round(item.price * 100) * item.quantity, 0);
   const shipping = cents >= 10000 ? 0 : 8;
-  const order = await Order.create({ customer: { name: customer.name.trim(), email: customer.email.trim(), address: customer.address.trim() }, items: orderItems, subtotal: cents / 100, shipping, total: cents / 100 + shipping });
+  const order = await Order.create({ user: req.user._id, customer: { name: customer.name.trim(), email: customer.email.trim(), address: customer.address.trim() }, items: orderItems, subtotal: cents / 100, shipping, total: cents / 100 + shipping });
   res.status(201).json({ id: order._id, total: order.total, status: order.status });
 }
 
-export async function getOrders(_req, res) {
-  res.json(await Order.find().sort({ createdAt: -1 }));
+export async function getOrders(req, res) {
+  const filter = req.user.role === 'admin' ? {} : { user: req.user._id };
+  res.json(await Order.find(filter).sort({ createdAt: -1 }));
 }

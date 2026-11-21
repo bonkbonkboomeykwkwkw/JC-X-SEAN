@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { api, readAuthState, saveAuthSession } from './api';
 import './auth.css';
 
 const titles = {
@@ -13,25 +14,47 @@ function AuthPages({ type }) {
   const [visiblePasswords, setVisiblePasswords] = useState({});
   const [feedback, setFeedback] = useState(null);
   const [resetNote, setResetNote] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     document.title = `${titles[type]} — Sean and JC.co`;
+    if (readAuthState().session) window.location.replace('/');
   }, [type]);
 
-  function submit(event) {
+  async function submit(event) {
     event.preventDefault();
+    if (submitting) return;
     const data = new FormData(event.currentTarget);
     const password = data.get('password');
     if (isRegister && password !== data.get('confirmPassword')) {
       setFeedback({ kind: 'error', text: 'Passwords do not match. Check both password fields.' });
       return;
     }
-    setFeedback({
-      kind: 'notice',
-      text: isRegister
-        ? 'Account creation is not connected yet. Your information was not submitted.'
-        : 'Sign-in is not connected yet. Your credentials were not submitted.',
-    });
+    const body = isRegister
+      ? { name: data.get('name'), email: data.get('email'), password }
+      : isAdmin
+        ? { identity: data.get('identity'), password }
+        : { email: data.get('email'), password };
+    const endpoint = isRegister ? '/auth/register' : isAdmin ? '/auth/admin/login' : '/auth/login';
+    const expectedRole = isAdmin ? 'admin' : 'customer';
+    setSubmitting(true);
+    setFeedback(null);
+    try {
+      const session = await api(endpoint, { method: 'POST', body });
+      if (typeof session?.token !== 'string'
+        || typeof session.user?.id !== 'string'
+        || typeof session.user.name !== 'string'
+        || typeof session.user.email !== 'string'
+        || session.user.role !== expectedRole) {
+        throw new Error('The authentication API returned an invalid session.');
+      }
+      saveAuthSession(session);
+      window.location.assign('/');
+    } catch (error) {
+      setFeedback({ kind: 'error', text: error.message || 'Authentication failed. Please try again.' });
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const passwordField = (name, label, autocomplete) => <label className="auth-field">
@@ -67,7 +90,7 @@ function AuthPages({ type }) {
             {!isRegister && !isAdmin && <div className="auth-options"><label className="remember-option"><input name="remember" type="checkbox" /> <span>Remember me</span></label><button className="auth-text-button" type="button" onClick={() => setResetNote(true)}>Forgot password?</button></div>}
             {resetNote && <p className="auth-note" role="status">Password reset is not available yet.</p>}
             {feedback && <p className={`auth-feedback ${feedback.kind}`} role={feedback.kind === 'error' ? 'alert' : 'status'}>{feedback.text}</p>}
-            <button className="dark-button auth-submit" type="submit">{isRegister ? 'Create account' : isAdmin ? 'Admin sign in' : 'Sign in'} <span>↗</span></button>
+            <button className="dark-button auth-submit" type="submit" disabled={submitting}>{submitting ? 'Please wait…' : isRegister ? 'Create account' : isAdmin ? 'Admin sign in' : 'Sign in'} <span>↗</span></button>
             {isAdmin && <p className="auth-note">Admin accounts are managed privately. There is no public admin registration.</p>}
           </form>
           {!isAdmin && <p className="auth-switch">{isRegister ? 'Already have an account?' : 'New to Sean and JC.co?'} <a href={isRegister ? '/login' : '/register'}>{isRegister ? 'Sign in' : 'Create an account'}</a></p>}
