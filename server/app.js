@@ -16,6 +16,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api', (_req, res) => res.status(404).json({ message: 'API route not found' }));
 const dist = fileURLToPath(new URL('../client/dist/', import.meta.url));
+const images = fileURLToPath(new URL('../client/images/', import.meta.url));
+app.use('/images', express.static(images, { maxAge: '1d' }));
 app.use(express.static(dist));
 app.get(['/', '/register', '/login', '/admin/login', ...categoryPages.map(page => `/category/${page.slug}`)], (_req, res) => res.sendFile(path.join(dist, 'index.html')));
 app.use((error, _req, res, _next) => {

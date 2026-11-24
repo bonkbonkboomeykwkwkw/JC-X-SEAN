@@ -5,7 +5,7 @@ export const initialProducts = [
     price: 21990,
     category: 'Phones',
     badge: 'Popular',
-    image: 'https://images.unsplash.com/photo-1592890288564-76628a30a657?auto=format&fit=crop&w=900&q=85',
+    image: '/images/samsunggalaxy.webp',
   },
   {
     name: 'Apple iPhone 15 128GB',
@@ -13,7 +13,7 @@ export const initialProducts = [
     price: 39990,
     category: 'Phones',
     badge: '',
-    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=85',
+    image: '/images/apple%20iphone15.webp',
   },
   {
     name: 'ASUS Vivobook 15 OLED',
@@ -21,7 +21,7 @@ export const initialProducts = [
     price: 39995,
     category: 'Computers',
     badge: 'Bestseller',
-    image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=85',
+    image: '/images/asus%20vivobook15.jpg',
   },
   {
     name: 'Lenovo IdeaPad Slim 3 14',
@@ -29,7 +29,7 @@ export const initialProducts = [
     price: 32995,
     category: 'Computers',
     badge: '',
-    image: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=85',
+    image: '/images/lenovoideapadslim.webp',
   },
   {
     name: 'Sony WH-CH720N Headphones',
@@ -37,7 +37,7 @@ export const initialProducts = [
     price: 6990,
     category: 'Audio',
     badge: 'New',
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85',
+    image: '/images/whch7200n.jpg',
   },
   {
     name: 'JBL Flip 6 Bluetooth Speaker',
@@ -45,7 +45,7 @@ export const initialProducts = [
     price: 6499,
     category: 'Audio',
     badge: '',
-    image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=900&q=85',
+    image: '/images/jbl.jpg',
   },
   {
     name: 'Samsung Galaxy Watch6 40mm',
@@ -53,7 +53,7 @@ export const initialProducts = [
     price: 12990,
     category: 'Wearables',
     badge: '',
-    image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&w=900&q=85',
+    image: '/images/samgalaxtwatch.webp',
   },
   {
     name: 'Xiaomi Smart Band 9',
@@ -61,7 +61,7 @@ export const initialProducts = [
     price: 2099,
     category: 'Wearables',
     badge: 'Essential',
-    image: 'https://images.unsplash.com/photo-1660844817855-3ecc7ef21f12?auto=format&fit=crop&w=900&q=85',
+    image: '/images/xiaomi%20watch.webp',
   },
   {
     name: 'Sony DualSense Wireless Controller',
@@ -69,7 +69,7 @@ export const initialProducts = [
     price: 4190,
     category: 'Gaming',
     badge: 'Popular',
-    image: 'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&w=900&q=85',
+    image: '/images/sony%20ps5%20controller.webp',
   },
   {
     name: 'Logitech G304 Lightspeed Mouse',
@@ -77,7 +77,7 @@ export const initialProducts = [
     price: 2395,
     category: 'Gaming',
     badge: '',
-    image: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?auto=format&fit=crop&w=900&q=85',
+    image: '/images/logitech%20mouse.jpg',
   },
   {
     name: 'TP-Link Tapo C210 Indoor Camera',
@@ -85,7 +85,7 @@ export const initialProducts = [
     price: 1299,
     category: 'Smart Home',
     badge: 'New',
-    image: 'https://images.unsplash.com/photo-1549109926-58f039549485?auto=format&fit=crop&w=900&q=85',
+    image: '/images/tplink.webp',
   },
   {
     name: 'Google Nest Mini (2nd Gen)',
@@ -93,7 +93,7 @@ export const initialProducts = [
     price: 2490,
     category: 'Smart Home',
     badge: '',
-    image: 'https://images.unsplash.com/photo-1519558260268-cde7e03a0152?auto=format&fit=crop&w=900&q=85',
+    image: '/images/googlenest.webp',
   },
   {
     name: 'Anker 30W Nano USB-C Charger',
@@ -101,7 +101,7 @@ export const initialProducts = [
     price: 1495,
     category: 'Accessories',
     badge: 'Essential',
-    image: 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=900&q=85',
+    image: '/images/ankeradapter.webp',
   },
   {
     name: 'UGREEN 100W USB-C Cable 2m',
@@ -109,11 +109,11 @@ export const initialProducts = [
     price: 699,
     category: 'Accessories',
     badge: '',
-    image: 'https://images.unsplash.com/photo-1731616103600-3fe7ccdc5a59?auto=format&fit=crop&w=900&q=85',
+    image: '/images/ugreen%20cord.webp',
   },
 ];
 
-export const replacedSeedProductNames = [
+export const retiredSeedProductNames = [
   'Nova Phone Pro',
   'Nova Phone Air',
   'StudioBook 14',
@@ -122,4 +122,13 @@ export const replacedSeedProductNames = [
   'Orbit Speaker',
   'Active Watch',
   'Charge Kit',
+  'Arc Lounge Chair',
+  'Dune Ceramic Vase',
+  'Halo Table Light',
+  'Everyday Pour-Over',
+  'Woven Sunday Throw',
+  'Still Life Bowl',
+  'Form Accent Chair',
+  'Quiet Moments',
+  'Trail Daypack',
 ];

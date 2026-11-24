@@ -1,5 +1,5 @@
 import Product from './models/Product.js';
-import { initialProducts, replacedSeedProductNames } from './seed-data.js';
+import { initialProducts, retiredSeedProductNames } from './seed-data.js';
 
 export async function seedCatalog() {
   await Product.bulkWrite(initialProducts.map(product => ({
@@ -7,7 +7,7 @@ export async function seedCatalog() {
   })));
 
   const activeNames = new Set(initialProducts.map(product => product.name));
-  const staleNames = replacedSeedProductNames.filter(name => !activeNames.has(name));
+  const staleNames = retiredSeedProductNames.filter(name => !activeNames.has(name));
   const removed = staleNames.length
     ? await Product.deleteMany({ name: { $in: staleNames } })
     : { deletedCount: 0 };

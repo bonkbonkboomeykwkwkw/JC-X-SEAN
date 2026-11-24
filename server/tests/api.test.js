@@ -117,6 +117,10 @@ test('product CRUD and orders require the correct role and orders are owner-scop
   assert.equal((await request('/products', 'POST', {} , adminToken)).status, 400);
   assert.equal((await request('/products', 'POST', { ...product, price: -1 }, adminToken)).status, 400);
   assert.equal((await request('/products', 'POST', { ...product, image: 'javascript:alert(1)' }, adminToken)).status, 400);
+  const localImageProduct = await request('/products', 'POST', { ...product, image: '/images/samsunggalaxy.webp' }, adminToken);
+  assert.equal(localImageProduct.status, 201);
+  assert.equal((await request('/products', 'POST', { ...product, image: '/images/%2e%2e/server.js' }, adminToken)).status, 400);
+  await request(`/products/${localImageProduct.body._id}`, 'DELETE', undefined, adminToken);
   assert.equal((await request('/products/bad-id')).status, 400);
   assert.equal((await request(`/products/${new mongoose.Types.ObjectId()}`)).status, 404);
   assert.equal((await request('/orders', 'POST', {})).status, 401);
@@ -211,7 +215,9 @@ test('category URLs support direct loading and admin product CRUD accepts new ca
   assert.equal(new Set(initialProducts.map(item => item.name)).size, initialProducts.length);
   for (const item of initialProducts) {
     assert.ok(item.name && item.description && item.price > 0 && categories.includes(item.category));
-    assert.equal(new URL(item.image).protocol, 'https:');
+    assert.ok(item.image.startsWith('/images/'));
+    const imageResponse = await fetch(base.replace('/api', '') + item.image);
+    assert.equal(imageResponse.status, 200, item.image);
   }
 });
 
@@ -319,17 +325,29 @@ test('order lifecycle records status history, restricts access, and tracks COD p
   assert.equal((await request('/orders/not-an-id/history', 'GET', undefined, adminToken)).status, 400);
 });
 
-test('catalog seeding replaces only named starter products and populates every category', async () => {
+test('catalog seeding removes only named retired products and populates every category', async () => {
   const starter = await Product.create({ ...product, name: 'Nova Phone Pro' });
   const custom = await Product.create({ ...product, name: 'Customer-created gadget' });
+  const legacyFurniture = await Product.collection.insertOne({
+    ...product,
+    name: 'Arc Lounge Chair',
+    category: 'Living',
+  });
+  const legacyDaypack = await Product.collection.insertOne({
+    ...product,
+    name: 'Trail Daypack',
+    category: 'Sports',
+  });
   const existingOrder = await Order.findOne();
   const usersBefore = await User.countDocuments();
 
   const seeded = await seedCatalog();
 
   assert.equal(seeded.seededCount, 14);
-  assert.equal(seeded.removedCount, 1);
+  assert.equal(seeded.removedCount, 3);
   assert.equal(await Product.findById(starter._id), null);
+  assert.equal(await Product.collection.findOne({ _id: legacyFurniture.insertedId }), null);
+  assert.equal(await Product.collection.findOne({ _id: legacyDaypack.insertedId }), null);
   assert.ok(await Product.findById(custom._id));
   assert.ok(await Order.findById(existingOrder._id));
   assert.equal(await User.countDocuments(), usersBefore);
