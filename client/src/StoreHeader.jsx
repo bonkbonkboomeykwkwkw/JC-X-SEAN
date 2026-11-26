@@ -15,7 +15,7 @@ export default function StoreHeader({ setModal, onShowOrders, onLogout, user, ca
         {!user && <a className="text-button sign-in-link" href="/login">Sign in</a>}
         {user && <span className="text-button">{user.name}</span>}
         {user?.role === 'customer' && <button onClick={onShowOrders} className="text-button">Orders</button>}
-        {user?.role === 'admin' && <button onClick={() => setModal('manage')} className="text-button">Manage</button>}
+        {user?.role === 'admin' && <a href="/admin" className="text-button admin-nav-pill">Admin</a>}
         {user && <button onClick={onLogout} className="text-button">Sign out</button>}
         <button onClick={() => setModal('cart')} className="bag-button" aria-label="Open shopping bag"><ShoppingBagIcon size={18} /><span>{count}</span></button>
       </div>

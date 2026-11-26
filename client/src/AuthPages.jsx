@@ -18,7 +18,8 @@ function AuthPages({ type }) {
 
   useEffect(() => {
     document.title = `${titles[type]} — Sean and JC.co`;
-    if (readAuthState().session) window.location.replace('/');
+    const session = readAuthState().session;
+    if (session) window.location.replace(session.user.role === 'admin' ? '/admin' : '/');
   }, [type]);
 
   async function submit(event) {
@@ -49,7 +50,7 @@ function AuthPages({ type }) {
         throw new Error('The authentication API returned an invalid session.');
       }
       saveAuthSession(session);
-      window.location.assign('/');
+      window.location.assign(expectedRole === 'admin' ? '/admin' : '/');
     } catch (error) {
       setFeedback({ kind: 'error', text: error.message || 'Authentication failed. Please try again.' });
     } finally {

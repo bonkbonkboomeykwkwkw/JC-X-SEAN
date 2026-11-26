@@ -194,6 +194,12 @@ test('product CRUD and orders require the correct role and orders are owner-scop
 });
 
 test('category URLs support direct loading and admin product CRUD accepts new categories', async () => {
+  for (const adminPath of ['/admin', '/admin/login', '/admin/orders', '/admin/products']) {
+    const response = await fetch(base.replace('/api', '') + adminPath);
+    assert.equal(response.status, 200, adminPath);
+    assert.match(await response.text(), /<div id="root"><\/div>/);
+  }
+  assert.equal((await fetch(base.replace('/api', '') + '/admin/unknown')).status, 404);
   const { categoryPages } = await import('../../shared/categories.js');
   for (const page of categoryPages) {
     const response = await fetch(base.replace('/api', '') + `/category/${page.slug}`);
