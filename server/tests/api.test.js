@@ -242,8 +242,9 @@ test('order lifecycle records status history, restricts access, and tracks COD p
     paymentMethod: 'GCash',
   }, customerToken)).status, 400);
 
+  const completeAddress = '123 Rizal Street, Barangay San Antonio, Makati City, Metro Manila, National Capital Region (NCR)';
   const createdOrder = await request('/orders', 'POST', {
-    customer: orderCustomer,
+    customer: { ...orderCustomer, address: completeAddress },
     items: [{ product: createdProduct.body._id, quantity: 1 }],
     contactNumber: '+63 917 123 4567',
   }, customerToken);
@@ -254,7 +255,10 @@ test('order lifecycle records status history, restricts access, and tracks COD p
   assert.equal(storedOrder.paymentMethod, 'COD');
   assert.equal(storedOrder.paymentStatus, 'Pending');
   assert.equal(storedOrder.contactNumber, '+63 917 123 4567');
-  assert.equal(storedOrder.shippingAddress, orderCustomer.address);
+  assert.equal(storedOrder.shippingAddress, completeAddress);
+  assert.equal(storedOrder.customer.address, completeAddress);
+  const savedOrders = await request('/orders', 'GET', undefined, customerToken);
+  assert.equal(savedOrders.body.find(order => order._id === orderId).shippingAddress, completeAddress);
 
   let history = await request(`/orders/${orderId}/history`, 'GET', undefined, customerToken);
   assert.equal(history.status, 200);
